@@ -21,10 +21,14 @@ def main(_args: Array[String]): Int32 & Impure =
     123
 
 namespace Pkger {
-
+    pub enum SemVer{
+        case SemVer(Int32,Int32,Int32)
+    }
     ///
     /// Initializes a new empty project in in the given `path`.
     ///
     pub def initProject(_path: File): Unit = ()
+
+    pub def compare(_a: SemVer, _b: SemVer): Bool = true  
 
 }
