@@ -21,6 +21,7 @@ def main(_args: Array[String]): Int32 & Impure =
     123
 
 namespace Pkger {
+    ///TODO pre-release version
     pub enum SemVer{
         case SemVer(Int32,Int32,Int32)
     }
@@ -29,6 +30,15 @@ namespace Pkger {
     ///
     pub def initProject(_path: File): Unit = ()
 
-    pub def compare(_a: SemVer, _b: SemVer): Bool = true  
+    ///
+    /// Return true if SemVer a have higher precedence than b or same.
+    ///
+    pub def compare(a: SemVer, b: SemVer): Bool = 
+    match (a,b){ 
+        case (SemVer(a1,b1,c1),SemVer(a2,b2,c2)) => 
+            if(a1 < a2){ false } else 
+            if(b1 < b2){ false } else
+            if(c1 < c2){ false } else { true }
+    }
 
 }
