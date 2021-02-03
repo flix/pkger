@@ -1,5 +1,6 @@
 /*
  * Copyright 2021 Magnus Madsen
+ * Copyright 2021 Zhiwei Zeng
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +24,7 @@ def main(_args: Array[String]): Int32 & Impure =
 namespace Pkger {
     ///TODO pre-release version
     pub enum SemVer{
-        case SemVer(Int32,Int32,Int32)
+        case SemVer(Int32, Int32, Int32)
     }
     ///
     /// Initializes a new empty project in in the given `path`.
@@ -35,10 +36,27 @@ namespace Pkger {
     ///
     pub def compare(a: SemVer, b: SemVer): Bool = 
     match (a,b){ 
-        case (SemVer(a1,b1,c1),SemVer(a2,b2,c2)) => 
-            if(a1 < a2){ false } else 
-            if(b1 < b2){ false } else
-            if(c1 < c2){ false } else { true }
+        case (SemVer(majorA,minorA,patchA),SemVer(majorB,minorB,patchB)) => 
+        let major = Int32.compare(majorA,majorB);
+        let minor = Int32.compare(minorA,minorB);
+        let patch = Int32.compare(patchA,patchB);
+        match major{
+            case 1 => true
+            case 0 => match minor {
+                case 1 => true
+                case 0 => match patch{
+                    case 1 => true
+                    case 0 => true
+                    case -1 => false
+                    case _ => false
+                }
+                case -1 => false 
+                case _ => false
+            }
+            case -1 => false
+            case _ => false
+        } 
+    
     }
 
 }
