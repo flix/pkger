@@ -26,6 +26,37 @@ namespace Pkger {
     pub enum SemVer{
         case SemVer(Int32, Int32, Int32)
     }
+
+    // Any field that's only require by the registry is ignore for now
+    pub enum PackageInfo{
+        case Name(String)           //name of the package
+        case Version(SemVer)        //semantic versioning 
+        case Author(String)         //the author of the package 
+        case Edition(String)        //the Flix edition 
+        //case ReadMe(String)         //path of the README file
+        case Repository(String)     //since we don't have a registry(yet?) here is where we fetch package
+        // case Workspace?
+        // case build script?
+        // case link?
+        // case exclude/ include
+        // case metadata 
+        // case default-run field
+    }
+
+    pub enum Dependency{
+        case Git(String,String)   //name of the library and git repository. How to fetch package with correspond SemVer from git?
+        case Local(String,String) //name and file path
+        case DevDependencies(String,String) //Can be either git or local dependency but only use for compiling tests,examples,and benchmarks.
+    }
+
+
+    ///
+    /// Generate a manifest 
+    ///
+    pub def makeManifest(_packgeInfo: List[PackageInfo], _dependencies: List[Dependency]): Unit = ()
+
+
+
     ///
     /// Initializes a new empty project in in the given `path`.
     ///
@@ -34,27 +65,24 @@ namespace Pkger {
     ///
     /// Return true if SemVer a have higher precedence than b or same.
     ///
-    pub def compare(a: SemVer, b: SemVer): Bool = 
+    pub def lessEqual(a: SemVer, b: SemVer): Bool = 
     match (a,b){ 
         case (SemVer(majorA,minorA,patchA),SemVer(majorB,minorB,patchB)) => 
-        let major = Int32.compare(majorA,majorB);
-        let minor = Int32.compare(minorA,minorB);
-        let patch = Int32.compare(patchA,patchB);
+        let major = majorA <=> majorB;
+        let minor = minorA <=> minorB;
+        let patch = patchA <=> patchB;
         match major{
-            case 1 => true
-            case 0 => match minor {
-                case 1 => true
-                case 0 => match patch{
-                    case 1 => true
-                    case 0 => true
-                    case -1 => false
-                    case _ => false
+            case GreaterThan => true
+            case EqualTo => match minor {
+                case GreaterThan => true
+                case EqualTo => match patch{
+                    case GreaterThan => true
+                    case EqualTo => true
+                    case LessThan => false
                 }
-                case -1 => false 
-                case _ => false
+                case LessThan => false
             }
-            case -1 => false
-            case _ => false
+            case LessThan => false
         } 
     
     }
