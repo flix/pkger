@@ -16,10 +16,49 @@
  */
 
 use Core/Io/File.{File};
+use GetOpt.{ArgDescr, OptionDescr};
+use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
+use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
+use GetOpt.{getOpt, usageInfo};
 
-def main(_args: Array[String]): Int32 & Impure =
-    "Hello World!" |> println;
-    123
+enum Flag {
+    case Version
+}
+
+instance ToString[Flag]{
+    def toString(x: Flag): String = match x {
+        case Version => "Version"
+    }
+}
+
+instance Eq[Flag]{
+    def eq(x: Flag, y: Flag): Bool = match (x,y){
+        case (Version, Version) => true
+    }
+    def neq(x:Flag, y:Flag) : Bool = false
+}
+
+
+def options(): List[OptionDescr[Flag]] = 
+    {optionIds = 'v' :: Nil, optionNames = "Version" :: Nil, argDescriptor = NoArg(Version), explanation = "prints the version number"} :: Nil
+
+
+def handleOptions(x: List[Flag]): Int32 & Impure = 
+    use Pkger.{SemVer};
+    let flipVersion = "The current version is 0,1,0";
+    if(List.head(x) == Some(Version)) flipVersion |> println else "Hi" |> println; 123
+
+def main(args: Array[String]): Int32 & Impure =
+    let args2 = GetOpt.preprocess({quoteOpen = "'", quoteClose = "'", stripQuoteMarks = false}, args);  
+    let header = "Usage: <program> [OPTION...] files...";
+    let options1 = options();
+    match getOpt(Permute,options1,args2){
+        case Success(opts) => {
+            Console.printLine("Optionals: ${opts.options}");
+            Console.printLine("Non-optionals: ${opts.nonOptions}");
+            handleOptions(opts.options); 0}
+        case Failure(errs) => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
+    }
 
 namespace Pkger {
     ///TODO pre-release version
@@ -27,28 +66,41 @@ namespace Pkger {
         case SemVer(Int32, Int32, Int32)
     }
 
+    pub enum Repository{
+        case Repository(Map[String,List[PackageInfo]])
+    }
+
+   
     // Any field that's only require by the registry is ignore for now
     pub enum PackageInfo{
-        case Name(String)           //name of the package
-        case Version(SemVer)        //semantic versioning 
-        case Author(String)         //the author of the package 
-        case Edition(String)        //the Flix edition 
-        //case ReadMe(String)         //path of the README file
-        case Repository(String)     //since we don't have a registry(yet?) here is where we fetch package
-        // case Workspace?
-        // case build script?
-        // case link?
-        // case exclude/ include
-        // case metadata 
-        // case default-run field
+        case PackageInfo({
+            name: String,
+            version: SemVer,
+            authors: List[Author],
+            edition: SemVer,
+            dependencies: List[Dependency],
+            url : String
+        })
+    }
+
+    pub enum Author{
+        case Author({name: String, email: Option[String]})
     }
 
     pub enum Dependency{
-        case Git(String,String)   //name of the library and git repository. How to fetch package with correspond SemVer from git?
-        case Local(String,String) //name and file path
-        case DevDependencies(String,String) //Can be either git or local dependency but only use for compiling tests,examples,and benchmarks.
+        case PackageDependecy(String,SemVer)  
+        case FileDependency(String,String)  
     }
 
+    pub def examplePackage(): PackageInfo = 
+        PackageInfo({
+            name = "MyPackageName",
+            version = SemVer(1,2,3), 
+            authors = Author({name = "peter", email = None}) :: Nil,
+            edition = SemVer(0,14,6),
+            dependencies = Nil,
+            url = "Nil"})
+    
 
     ///
     /// Generate a manifest 
