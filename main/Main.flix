@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-use Core/Io/File.{File};
+use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs};
 use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
 use GetOpt.{getOpt, usageInfo};
+
 
 enum Flag {
     case Version
@@ -41,12 +42,29 @@ instance Eq[Flag]{
 
 def options(): List[OptionDescr[Flag]] = 
     {optionIds = 'v' :: Nil, optionNames = "Version" :: Nil, argDescriptor = NoArg(Version), explanation = "prints the version number"} :: Nil
+   
 
 
 def handleOptions(x: List[Flag]): Int32 & Impure = 
     use Pkger.{SemVer};
     let flipVersion = "The current version is 0,1,0";
-    if(List.head(x) == Some(Version)) flipVersion |> println else "Hi" |> println; 123
+    if(List.head(x) == Some(Version)) flipVersion |> println else "no flag" |> println; 123
+
+def handleNonOption(x: List[String]): Int32 & Impure = 
+    match x {
+        case Nil => 0
+        case n :: rest => 
+           if (n == "new") let fileName = List.head(rest); mkPackage(fileName);0 else 0
+    }
+
+def mkPackage(x: Option[String]): Int32 & Impure = 
+    match x{
+        case None => 0
+        case Some(y) => let path = newFile(y);
+        mkdirs(path);
+        "mkPackage called" |> println; 0
+    }
+    
 
 def main(args: Array[String]): Int32 & Impure =
     let args2 = GetOpt.preprocess({quoteOpen = "'", quoteClose = "'", stripQuoteMarks = false}, args);  
@@ -56,7 +74,8 @@ def main(args: Array[String]): Int32 & Impure =
         case Success(opts) => {
             Console.printLine("Optionals: ${opts.options}");
             Console.printLine("Non-optionals: ${opts.nonOptions}");
-            handleOptions(opts.options); 0}
+            handleOptions(opts.options);
+            handleNonOption(opts.nonOptions); 0}
         case Failure(errs) => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
     }
 
