@@ -20,6 +20,7 @@ use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
 use GetOpt.{getOpt, usageInfo};
+use Core/Io/IOError.IOError;
 
 
 
@@ -67,15 +68,16 @@ def mkPackage(x: Option[String]): Int32 & Impure =
         let benches = newFile(y + "/benches");
         let examples = newFile(y + "/examples");
         let tests = newFile(y + "/tests");
-        let manifest = newFile("manifest.txt");
-        let lock = newFile("lockfile.txt");
+        let manifest = newFile(y + "/manifest.txt");
+        let lock = newFile(y + "/lockfile.txt");
         mkdirs(root);
         mkdirs(srcfile);
         mkdirs(benches);
         mkdirs(tests);
+        mkdirs(examples);
         mkdirs(manifest);
         mkdirs(lock);
-        mkdirs(examples);
+        
         "Package has been made" |> println; 0
     }
     
