@@ -22,6 +22,7 @@ use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
 use GetOpt.{getOpt, usageInfo};
 
 
+
 enum Flag {
     case Version
 }
@@ -60,9 +61,22 @@ def handleNonOption(x: List[String]): Int32 & Impure =
 def mkPackage(x: Option[String]): Int32 & Impure = 
     match x{
         case None => 0
-        case Some(y) => let path = newFile(y);
-        mkdirs(path);
-        "mkPackage called" |> println; 0
+        case Some(y) => 
+        let root = newFile(y);
+        let srcfile = newFile(y + "/src");
+        let benches = newFile(y + "/benches");
+        let examples = newFile(y + "/examples");
+        let tests = newFile(y + "/tests");
+        let manifest = newFile("manifest.txt");
+        let lock = newFile("lockfile.txt");
+        mkdirs(root);
+        mkdirs(srcfile);
+        mkdirs(benches);
+        mkdirs(tests);
+        mkdirs(manifest);
+        mkdirs(lock);
+        mkdirs(examples);
+        "Package has been made" |> println; 0
     }
     
 
