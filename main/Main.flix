@@ -22,6 +22,15 @@ use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
 use GetOpt.{getOpt, usageInfo};
 use Core/Io/IOError.IOError;
 use Core/Io/File.File.File;
+use Author.Author;
+use Author.Author.Author;
+use PackageInfo.PackageInfo;
+use PackageInfo.PackageInfo.PackageInfo;
+use SemVer.SemVer;
+use SemVer.SemVer.SemVer;
+use Dependency.Dependency;
+
+
 
 enum Flag {
     case Version
@@ -43,7 +52,6 @@ def options(): List[OptionDescr[Flag]] =
 
 
 def handleOptions(x: List[Flag]): Int32 & Impure = 
-    use Pkger.{SemVer};
     let flipVersion = "The current version is 0,1,0";
     if(List.head(x) == Some(Version)) flipVersion |> println else "no flag" |> println; 123
 
@@ -115,36 +123,6 @@ def main(args: Array[String]): Int32 & Impure =
     }
 
 namespace Pkger {
-    ///TODO pre-release version
-    pub enum SemVer{
-        case SemVer(Int32, Int32, Int32)
-    }
-
-    pub enum Repository{
-        case Repository(Map[String,List[PackageInfo]])
-    }
-
-   
-    // Any field that's only require by the registry is ignore for now
-    pub enum PackageInfo{
-        case PackageInfo({
-            name: String,
-            version: SemVer,
-            authors: List[Author],
-            edition: SemVer,
-            dependencies: List[Dependency],
-            url : String
-        })
-    }
-
-    pub enum Author{
-        case Author({name: String, email: Option[String]})
-    }
-
-    pub enum Dependency{
-        case PackageDependecy(String,SemVer)  
-        case FileDependency(String,String)  
-    }
 
     pub def examplePackage(): PackageInfo = 
         PackageInfo({
@@ -155,7 +133,6 @@ namespace Pkger {
             dependencies = Nil,
             url = "Nil"})
     
-
     ///
     /// Generate a manifest 
     ///
@@ -168,29 +145,5 @@ namespace Pkger {
     ///
     pub def initProject(_path: File): Unit = ()
 
-    ///
-    /// Return true if SemVer a have higher precedence than b or same.
-    ///
-    pub def lessEqual(a: SemVer, b: SemVer): Bool = 
-    match (a,b){ 
-        case (SemVer(majorA,minorA,patchA),SemVer(majorB,minorB,patchB)) => 
-        let major = majorA <=> majorB;
-        let minor = minorA <=> minorB;
-        let patch = patchA <=> patchB;
-        match major{
-            case GreaterThan => true
-            case EqualTo => match minor {
-                case GreaterThan => true
-                case EqualTo => match patch{
-                    case GreaterThan => true
-                    case EqualTo => true
-                    case LessThan => false
-                }
-                case LessThan => false
-            }
-            case LessThan => false
-        } 
-    
-    }
 
 }
