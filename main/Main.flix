@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+use String.replace;
 use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs};
 use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
@@ -24,17 +25,21 @@ use Core/Io/IOError.IOError;
 use Core/Io/File.File.File;
 use Author.Author;
 use Author.Author.Author;
-use PackageInfo.PackageInfo;
-use PackageInfo.PackageInfo.PackageInfo;
 use SemVer.SemVer;
 use SemVer.SemVer.SemVer;
 use Dependency.Dependency;
+//use PackageInfo.PackageInfo.PackageInfo;
+//use PackageInfo.PackageInfo;
+
+
 
 
 
 enum Flag {
     case Version
+    //case Help
 }
+
 instance ToString[Flag]{
     def toString(x: Flag): String = match x {
         case Version => "Version"
@@ -43,17 +48,24 @@ instance ToString[Flag]{
 instance Eq[Flag]{
     def eq(x: Flag, y: Flag): Bool = match (x,y){
         case (Version, Version) => true
+        //case (Help,Help) => true
     }
     def neq(x:Flag, y:Flag) : Bool = false
 }
 def options(): List[OptionDescr[Flag]] = 
-    {optionIds = 'v' :: Nil, optionNames = "Version" :: Nil, argDescriptor = NoArg(Version), explanation = "prints the version number"} :: Nil
+    {optionIds = 'v' :: Nil, optionNames = "Version" :: Nil, argDescriptor = NoArg(Version), explanation = "prints the version number"} ::
+    {optionIds = 'h' :: Nil, optionNames = "Help" :: Nil, argDescriptor = NoArg(Version), explanation = "Show the commands"} :: Nil
    
 
 
 def handleOptions(x: List[Flag]): Int32 & Impure = 
     let flipVersion = "The current version is 0,1,0";
-    if(List.head(x) == Some(Version)) flipVersion |> println else "no flag" |> println; 123
+    match List.head(x) {
+        case Some(Version) => "Welcome to Flip" |> println; flipVersion |> println; 1
+        //case Some(Help) => "Flip [Command] [argument]" |> println; "Command list:"|> println; "new" |> println; "uninstall"|> println; 1
+        case _ => 1
+    }
+    //if(List.head(x) == Some(Version)) flipVersion |> println else "no flag" |> println; 123
 
 def handleNonOption(x: List[String]): Int32 & Impure = 
     match x {
@@ -62,9 +74,38 @@ def handleNonOption(x: List[String]): Int32 & Impure =
             match n {
                 case "new" => let fileName = List.head(rest); mkPackage(fileName);0
                 case "uninstall" => let fileName = List.head(rest); uninstallPackage(fileName);0
+                case "init" => initPackage();0
                 case _ => 0
             }
     }
+def initPackage(): Int32 & Impure = 
+            import java.io.File.list();
+            import java.io.File.getAbsolutePath();
+            let pivot = newFile("Hi");
+            let File(javaFile) = pivot;
+            let rootPath = replace("/Hi","",javaFile.getAbsolutePath());
+            rootPath |> println;
+            let rootFile = newFile(rootPath);
+            let File(rootJavaFile) = rootFile;
+            if (Array.length(rootJavaFile.list()) > 0) 
+            rootJavaFile.list() |> println else
+            "The Package has been initialized" |> println;
+            let srcfile = newFile("src");
+            let benches = newFile("benches");
+            let examples = newFile("examples");
+            let tests = newFile("tests");
+            let manifest = newFile("manifest.txt");
+            let lock = newFile("lockfile.txt");
+            mkdirs(srcfile);
+            mkdirs(benches);
+            mkdirs(tests);
+            mkdirs(examples);
+            mkdirs(manifest);
+            mkdirs(lock);
+            0
+            
+    
+
 
 def uninstallPackage(x: Option[String]): Bool & Impure = 
     match x{
@@ -123,7 +164,7 @@ def main(args: Array[String]): Int32 & Impure =
     }
 
 namespace Pkger {
-
+    /*
     pub def examplePackage(): PackageInfo = 
         PackageInfo({
             name = "MyPackageName",
@@ -131,12 +172,12 @@ namespace Pkger {
             authors = Author({name = "peter", email = None}) :: Nil,
             edition = SemVer(0,14,6),
             dependencies = Nil,
-            url = "Nil"})
+            url = "Nil"})*/
     
     ///
     /// Generate a manifest 
     ///
-    pub def makeManifest(_packgeInfo: List[PackageInfo], _dependencies: List[Dependency]): Unit = ()
+    //pub def makeManifest(_packgeInfo: List[PackageInfo], _dependencies: List[Dependency]): Unit = ()
 
 
 
