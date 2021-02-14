@@ -21,18 +21,15 @@ use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
 use GetOpt.{getOpt, usageInfo};
 use Core/Io/IOError.IOError;
-
-
+use Core/Io/File.File.File;
 
 enum Flag {
     case Version
 }
-
 instance ToString[Flag]{
     def toString(x: Flag): String = match x {
         case Version => "Version"
-    }
-}
+    }}
 
 instance Eq[Flag]{
     def eq(x: Flag, y: Flag): Bool = match (x,y){
@@ -40,8 +37,6 @@ instance Eq[Flag]{
     }
     def neq(x:Flag, y:Flag) : Bool = false
 }
-
-
 def options(): List[OptionDescr[Flag]] = 
     {optionIds = 'v' :: Nil, optionNames = "Version" :: Nil, argDescriptor = NoArg(Version), explanation = "prints the version number"} :: Nil
    
@@ -56,8 +51,32 @@ def handleNonOption(x: List[String]): Int32 & Impure =
     match x {
         case Nil => 0
         case n :: rest => 
-           if (n == "new") let fileName = List.head(rest); mkPackage(fileName);0 else 0
+            match n {
+                case "new" => let fileName = List.head(rest); mkPackage(fileName);0
+                case "uninstall" => let fileName = List.head(rest); uninstallPackage(fileName);0
+                case _ => 0
+            }
     }
+
+def uninstallPackage(x: Option[String]): Bool & Impure = 
+    match x{
+        case None => false
+        case Some(y) => 
+        let root = newFile(y);
+        deleteFolder(root)
+    }
+
+def deleteFolder(f: File): Bool & Impure =  {
+    import java.io.File.delete();
+    import java.io.File.getPath();
+    //import java.io.File.listFiles();
+    let File(javaFile) = f;
+    //TODO support delete folder that's not empty
+    //for ( subFile <- javaFile.listFiles()) 
+    javaFile.getPath() |> println;
+    if (javaFile.delete()) "Package has been deleted" |> println else "Package has not been deleted" |> println;
+    true
+}
 
 def mkPackage(x: Option[String]): Int32 & Impure = 
     match x{
