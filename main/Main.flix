@@ -78,9 +78,12 @@ def handleNonOption(x: List[String]): Int32 & Impure =
                 case _ => 0
             }
     }
+
+//Need a way to return current directory to end this madness
 def initPackage(): Int32 & Impure = 
             import java.io.File.list();
             import java.io.File.getAbsolutePath();
+            import java.io.File.createNewFile();
             let pivot = newFile("Hi");
             let File(javaFile) = pivot;
             let rootPath = replace("/Hi","",javaFile.getAbsolutePath());
@@ -88,20 +91,23 @@ def initPackage(): Int32 & Impure =
             let rootFile = newFile(rootPath);
             let File(rootJavaFile) = rootFile;
             if (Array.length(rootJavaFile.list()) > 0) 
-            rootJavaFile.list() |> println else
-            "The Package has been initialized" |> println;
-            let srcfile = newFile("src");
-            let benches = newFile("benches");
-            let examples = newFile("examples");
-            let tests = newFile("tests");
-            let manifest = newFile("manifest.txt");
-            let lock = newFile("lockfile.txt");
-            mkdirs(srcfile);
-            mkdirs(benches);
-            mkdirs(tests);
-            mkdirs(examples);
-            mkdirs(manifest);
-            mkdirs(lock);
+                "It's not an empty directory"|> println 
+            else
+                "The Package has been initialized" |> println;
+                let srcfile = newFile("src");
+                let benches = newFile("benches");
+                let examples = newFile("examples");
+                let tests = newFile("tests");
+                let manifest = newFile("manifest.txt");
+                let lock = newFile("lockfile.txt");
+                let File(javaFile) = manifest;
+                let File(javaLock) = lock;
+                mkdirs(srcfile);
+                mkdirs(benches);
+                mkdirs(tests);
+                mkdirs(examples);
+                javaFile.createNewFile();
+                javaLock.createNewFile();
             0
             
     
@@ -128,6 +134,7 @@ def deleteFolder(f: File): Bool & Impure =  {
 }
 
 def mkPackage(x: Option[String]): Int32 & Impure = 
+    import java.io.File.createNewFile();
     match x{
         case None => 0
         case Some(y) => 
@@ -138,16 +145,19 @@ def mkPackage(x: Option[String]): Int32 & Impure =
         let tests = newFile(y + "/tests");
         let manifest = newFile(y + "/manifest.txt");
         let lock = newFile(y + "/lockfile.txt");
+        let File(javaFile) = manifest;
+        let File(javaLock) = lock;
         mkdirs(root);
         mkdirs(srcfile);
         mkdirs(benches);
         mkdirs(tests);
         mkdirs(examples);
-        mkdirs(manifest);
-        mkdirs(lock);
-        
-        "Package has been made" |> println; 0
+        javaFile.createNewFile();
+        javaLock.createNewFile();
+        "Package has been made" |> println; 1
     }
+
+
     
 
 def main(args: Array[String]): Int32 & Impure =
@@ -156,8 +166,8 @@ def main(args: Array[String]): Int32 & Impure =
     let options1 = options();
     match getOpt(Permute,options1,args2){
         case Success(opts) => {
-            Console.printLine("Optionals: ${opts.options}");
-            Console.printLine("Non-optionals: ${opts.nonOptions}");
+            //Console.printLine("Optionals: ${opts.options}");
+            //Console.printLine("Non-optionals: ${opts.nonOptions}");
             handleOptions(opts.options);
             handleNonOption(opts.nonOptions); 0}
         case Failure(errs) => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
