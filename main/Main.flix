@@ -16,7 +16,7 @@
  */
 
 use String.replace;
-use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs};
+use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists};
 use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
@@ -32,13 +32,11 @@ use Dependency.Dependency;
 //use PackageInfo.PackageInfo;
 
 
-
-
-
 enum Flag {
     case Version
     //case Help
 }
+
 
 instance ToString[Flag]{
     def toString(x: Flag): String = match x {
@@ -72,11 +70,34 @@ def handleNonOption(x: List[String]): Int32 & Impure =
         case Nil => 0
         case n :: rest => 
             match n {
-                case "new" => let fileName = List.head(rest); mkPackage(fileName);0
-                case "uninstall" => let fileName = List.head(rest); uninstallPackage(fileName);0
-                case "init" => initPackage();0
+                case "new" => let fileName = List.head(rest); mkPackage(fileName);1
+                case "uninstall" => let fileName = List.head(rest); uninstallPackage(fileName);1
+                case "init" => initPackage();1
+                case "checkvalid" => isValidProject();1
                 case _ => 0
             }
+    }
+
+def isValidProject(): Bool & Impure = 
+    let srcfile = newFile("src");
+    let benches = newFile("benches");
+    let examples = newFile("examples");
+    let tests = newFile("tests");
+    let manifest = newFile("manifest.txt");
+    let lock = newFile("lockfile.txt");
+    let handleSrc = isValidHelper(srcfile);
+    let handleBenches = isValidHelper(benches);
+    let handleExamples = isValidHelper(examples);
+    let handleTests = isValidHelper(tests);
+    let handleManifest = isValidHelper(manifest);
+    let handleLock = isValidHelper(lock);
+    if (handleSrc and handleBenches and handleExamples and handleTests and handleManifest and handleLock) "It's valid package" |> println else "It's invalid package" |> println; false
+
+
+def isValidHelper(file: File): Bool & Impure = 
+    match exists(file) {
+        case Ok(t) => t 
+        case Err(_e) => "error in File exists()"|> println;false
     }
 
 //Need a way to return current directory to end this madness
@@ -173,6 +194,7 @@ def main(args: Array[String]): Int32 & Impure =
         case Failure(errs) => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
     }
 
+
 namespace Pkger {
     /*
     pub def examplePackage(): PackageInfo = 
@@ -195,6 +217,5 @@ namespace Pkger {
     /// Initializes a new empty project in in the given `path`.
     ///
     pub def initProject(_path: File): Unit = ()
-
 
 }
