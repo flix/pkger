@@ -1,7 +1,21 @@
+/*
+ * Copyright 2021 Zhiwei Zeng
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 use PackageInfo.PackageInfo.PackageInfo;
 use PackageInfo.PackageInfo;
-use Author.Author;
-use Author.Author.Author;
 use SemVer.SemVer;
 use SemVer.SemVer.SemVer;
 use Dependency.Dependency;
@@ -13,9 +27,12 @@ use GetOpt.{getOpt, usageInfo};
 use Core/Io/IOError.IOError;
 use Core/Io/File.File.File;
 use String.replace;
+use Pkger/Author.Author.Author;
+use Pkger/Author.Author;
 
 namespace Pkger {
-
+    
+    
     pub def mkPackage(x: Option[String]): Int32 & Impure = 
         import java.io.File.createNewFile();
         match x{
@@ -114,12 +131,12 @@ namespace Pkger {
         if (javaFile.delete()) "Package has been deleted" |> println else "Package has not been deleted" |> println;
         true
     }
-    
+ 
     pub def examplePackage(): PackageInfo = 
         PackageInfo({
             name = "MyPackageName",
             version = SemVer(1,2,3), 
-            authors = Author({name = "peter", email = None}) :: Nil,
+            authors = Author({name = "peter", email = None, website = None}) :: Nil,
             edition = SemVer(0,14,6),
             dependencies = Nil,
             url = "Nil"})

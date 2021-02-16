@@ -30,6 +30,7 @@ enum Flag {
     case Help
 }
 
+
 instance ToString[Flag]{
     def toString(x: Flag): String = match x {
         case Version => "Version"
@@ -72,6 +73,7 @@ def handleNonOption(x: List[String]): Int32 & Impure =
                 case _ => 0
             }
     }
+
 
 def main(args: Array[String]): Int32 & Impure =
     let args2 = GetOpt.preprocess({quoteOpen = "'", quoteClose = "'", stripQuoteMarks = false}, args);  

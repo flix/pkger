@@ -1,5 +1,4 @@
 /*
- * Copyright 2021 Magnus Madsen
  * Copyright 2021 Zhiwei Zeng
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +14,10 @@
  * limitations under the License.
  */
 
-namespace Author{
-    pub enum Author{
-        case Author({name: String, email: Option[String]})
+namespace Pkger{
+    namespace Author{
+        pub enum Author{
+            case Author({name: String, email: Option[String], website: Option[String]})
+        }
     }
 }

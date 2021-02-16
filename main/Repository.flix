@@ -1,5 +1,4 @@
 /*
- * Copyright 2021 Magnus Madsen
  * Copyright 2021 Zhiwei Zeng
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

@@ -1,5 +1,4 @@
 /*
- * Copyright 2021 Magnus Madsen
  * Copyright 2021 Zhiwei Zeng
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+*/
+
 use SemVer.SemVer;
-namespace Dependency{
-    pub enum Dependency{
-        case PackageDependecy(String,SemVer)  
-        case FileDependency(String,String)  
+
+namespace Dependency {
+    pub enum Dependency {
+        case PackageDependecy(String, SemVer)  
+        case FileDependency(String, String)  
     }
 }
