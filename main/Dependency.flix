@@ -17,7 +17,7 @@
 use SemVer.SemVer;
 
 namespace Dependency {
-    pub enum Dependency {
+    pub enum PackageDependency {
         case PackageDependecy(String, SemVer)  
         case FileDependency(String, String)  
     }

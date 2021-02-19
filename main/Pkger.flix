@@ -18,8 +18,8 @@ use PackageInfo.PackageInfo.PackageInfo;
 use PackageInfo.PackageInfo;
 use SemVer.SemVer;
 use SemVer.SemVer.SemVer;
-use Dependency.Dependency;
-use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists};
+use Dependency.PackageDependency;
+use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists,isDirectory};
 use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
@@ -32,11 +32,14 @@ use Pkger/Author.Author;
 
 namespace Pkger {
     
-    
-    pub def mkPackage(x: Option[String]): Int32 & Impure = 
+
+    ///
+    /// Create a directory name x, then create the skeleton files for a empty package
+    ///
+    pub def mkPackage(x: Option[String]): Result[Bool,String] & Impure = 
         import java.io.File.createNewFile();
         match x{
-            case None => 0
+            case None => Ok(false)
             case Some(y) => 
             let root = newFile(y);
             let srcfile = newFile(y + "/src");
@@ -54,11 +57,13 @@ namespace Pkger {
             mkdirs(examples);
             javaFile.createNewFile();
             javaLock.createNewFile();
-            "Package has been made" |> println; 1
+            "Package has been made" |> println; Ok(true)
         }
 
-    //Need a way to return current directory to end this madness
-    pub def initPackage(): Int32 & Impure = 
+    ///
+    /// Create a new package is current directory is empty
+    ///
+    pub def initPackage(): Result[Bool,String] & Impure = 
         import java.io.File.list();
         import java.io.File.getAbsolutePath();
         import java.io.File.createNewFile();
@@ -70,7 +75,7 @@ namespace Pkger {
         let File(rootJavaFile) = rootFile;
         if (Array.length(rootJavaFile.list()) > 1) {
             "It's not an empty directory"|> println;
-            0
+            Ok(false)
             }
         else {
             "The Package has been initialized" |> println;
@@ -87,10 +92,13 @@ namespace Pkger {
             mkdirs(tests);
             mkdirs(examples);
             javaFile.createNewFile();
-            javaLock.createNewFile();1}
+            javaLock.createNewFile();
+            Ok(true)}
             
-
-    pub def isValidProject(): Bool & Impure = 
+    //
+    // Return true if the package have valid structure
+    //
+    pub def isValidProject(): Result[Bool,String] & Impure = 
         let srcfile = newFile("src");
         let benches = newFile("benches");
         let examples = newFile("examples");
@@ -103,34 +111,78 @@ namespace Pkger {
         let handleTests = isValidHelper(tests);
         let handleManifest = isValidHelper(manifest);
         let handleLock = isValidHelper(lock);
-        if (handleSrc and handleBenches and handleExamples and handleTests and handleManifest and handleLock) "It's valid package" |> println 
-        else "It's invalid package" |> println; false
+        if (handleSrc and handleBenches and handleExamples and handleTests and handleManifest and handleLock) {
+            "It's valid package" |> println;
+            Ok(true)}
+        else {
+            "It's invalid package" |> println;
+             Ok(false)}
     
     def isValidHelper(file: File): Bool & Impure = 
-    match exists(file) {
-        case Ok(t) => t 
-        case Err(_e) => "error in File exists()"|> println;false
-    }
-
-    pub def uninstallPackage(x: Option[String]): Bool & Impure = 
-        match x{
-            case None => false
-            case Some(y) => 
-            let root = newFile(y);
-            deleteFolder(root)
+        match exists(file) {
+            case Ok(t) => t 
+            case Err(_e) => "error in File exists()"|> println; false
         }
 
-    def deleteFolder(f: File): Bool & Impure =  {
+
+    //
+    //Return true if package uninstall succesfully 
+    //
+    pub def uninstallPackage(x: Option[String]): Result[Bool,String] & Impure = 
+        use Result.flatMap;
+        match x{
+            case None => Ok(false)
+            case Some(y) => 
+                let root = newFile(y);
+                let checkExist = match exists(root){
+                    case Ok(r) => r
+                    case Err(_r) => "The file is not existe" |> println;false
+                };
+                if (checkExist){
+                    deleteFolder(root);
+                    Ok(true)
+                }
+                else {
+                    "The file is not existe" |> println;
+                    Err("File not exist")
+                }
+                
+        }
+    
+    //
+    //If f is an directory, delete everything inside it and eveything inside it
+    //
+    def deleteFolder(f: File): Result[Bool,String] & Impure =  {       
+        import java.io.File.list();
         import java.io.File.delete();
-        import java.io.File.getPath();
-        //import java.io.File.listFiles();
-        let File(javaFile) = f;
-        //TODO support delete folder that's not empty
-        //for ( subFile <- javaFile.listFiles()) 
-        javaFile.getPath() |> println;
-        if (javaFile.delete()) "Package has been deleted" |> println else "Package has not been deleted" |> println;
-        true
+        import java.io.File.listFiles();
+        if (checkDirectory(f)) {
+            let File(rootJavaFile) = f;
+            let fileArray = Array.length(rootJavaFile.list());
+                if (fileArray == 0){
+                    "Delete empty directory" |> println; 
+                    rootJavaFile.delete();
+                    Ok(true)
+                }
+                else {
+                    let javaFileList = rootJavaFile.listFiles();
+                    Array.map(delete,javaFileList);
+                    rootJavaFile.delete();
+                    "Delete this directory and stuffs in it" |> println; Ok(false)
+                }
+            }
+        else { Ok(false) }
     }
+
+    //
+    //deleteFolder helper, can't use let*
+    //
+    def checkDirectory(file: File): Bool & Impure = 
+        match isDirectory(file) {
+            case Ok(t) => t 
+            case Err(_e) => "error in File exists()"|> println; false
+        }
+
  
     pub def examplePackage(): PackageInfo = 
         PackageInfo({
@@ -144,7 +196,7 @@ namespace Pkger {
     ///
     /// Generate a manifest 
     ///
-    pub def makeManifest(_packgeInfo: List[PackageInfo], _dependencies: List[Dependency]): Unit = ()
+    pub def makeManifest(_packgeInfo: List[PackageInfo], _dependencies: List[PackageDependency]): Unit = ()
 
 
 

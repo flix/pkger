@@ -17,7 +17,7 @@
 
 use SemVer.SemVer;
 use Pkger/Author.Author;
-use Dependency.Dependency;
+use Dependency.PackageDependency;
 
 namespace PackageInfo{
  // Any field that's only require by the registry is ignore for now
@@ -27,7 +27,7 @@ namespace PackageInfo{
             version : SemVer,
             authors : List[Author],
             edition : SemVer,
-            dependencies : List[Dependency],
+            dependencies : List[PackageDependency],
             url : String
         })
     }
