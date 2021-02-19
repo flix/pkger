@@ -19,7 +19,7 @@ use PackageInfo.PackageInfo;
 use SemVer.SemVer;
 use SemVer.SemVer.SemVer;
 use Dependency.PackageDependency;
-use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists,isDirectory};
+use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists,isDirectory,getName};
 use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
@@ -29,10 +29,10 @@ use Core/Io/File.File.File;
 use String.replace;
 use Pkger/Author.Author.Author;
 use Pkger/Author.Author;
+use Pkger/PkgerError.InvalidPackageError;
 
 namespace Pkger {
     
-
     ///
     /// Create a directory name x, then create the skeleton files for a empty package
     ///
@@ -98,30 +98,42 @@ namespace Pkger {
     //
     // Return true if the package have valid structure
     //
-    pub def isValidProject(): Result[Bool,String] & Impure = 
+    pub def isValidProject(): Result[Bool,InvalidPackageError] & Impure = 
+        use Result.flatMap;
         let srcfile = newFile("src");
         let benches = newFile("benches");
         let examples = newFile("examples");
         let tests = newFile("tests");
         let manifest = newFile("manifest.txt");
         let lock = newFile("lockfile.txt");
-        let handleSrc = isValidHelper(srcfile);
-        let handleBenches = isValidHelper(benches);
-        let handleExamples = isValidHelper(examples);
-        let handleTests = isValidHelper(tests);
-        let handleManifest = isValidHelper(manifest);
-        let handleLock = isValidHelper(lock);
+        
+        let* handleSrc = isValidHelper(srcfile);
+        let* handleBenches = isValidHelper(benches);
+        let* handleExamples = isValidHelper(examples);
+        let* handleTests = isValidHelper(tests);
+        let* handleManifest = isValidHelper(manifest);
+        let* handleLock = isValidHelper(lock);
         if (handleSrc and handleBenches and handleExamples and handleTests and handleManifest and handleLock) {
             "It's valid package" |> println;
             Ok(true)}
         else {
             "It's invalid package" |> println;
-             Ok(false)}
-    
-    def isValidHelper(file: File): Bool & Impure = 
+            if (handleSrc == false){ "Missing src Directory"|> println} else {"hi" |> println};
+            if (handleBenches == false){ "Missing benches Directory"|> println} else {"hi" |> println};
+            if (handleExamples == false){ "Missing examples Directory"|> println} else {"hi" |> println};
+            if (handleTests == false){ "Missing tests Directory"|> println} else {"hi" |> println};
+            if (handleManifest == false){ "Missing manifest file"|> println} else {"hi" |> println};
+            if (handleLock == false){ "Missing Lock file"|> println} else {"hi" |> println};
+            Ok(false)}
+        
+    //
+    //return true if the file exist 
+    //
+    def isValidHelper(file: File): Result[Bool,InvalidPackageError] & Impure = 
         match exists(file) {
-            case Ok(t) => t 
-            case Err(_e) => "error in File exists()"|> println; false
+            case Ok(t) => Ok(t)  
+            case Err(_e) => Err(InvalidPackageError.FileNotExist)
+            
         }
 
 

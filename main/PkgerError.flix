@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
+ namespace Pkger/PkgerError{
 
-namespace Pkger{
-    namespace Author{
-        pub enum Author{
-            case Author({name: String, email: Option[String], website: Option[String]})
-        }
+    pub enum InvalidPackageError {
+        case MissingSrcDirectory
+        case MissingManifestFile
+        case MissingBenchesDirectory 
+        case MissingExamplesDirectory 
+        case MissingTestsDirectory
+        case MissingLockFile
+        case FileNotExist
     }
-}
+
+ }
