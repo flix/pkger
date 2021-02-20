@@ -15,10 +15,11 @@
 */
 
 use SemVer.SemVer;
-
-namespace Dependency {
-    pub enum PackageDependency {
-        case PackageDependecy(String, SemVer)  
-        case FileDependency(String, String)  
+namespace Pkger{
+    namespace Dependency {
+        pub enum PackageDependency {
+            case PackageDependency(String, SemVer)  
+            case FileDependency(String, String)  
+        }
     }
 }

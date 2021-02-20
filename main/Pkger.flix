@@ -18,7 +18,7 @@ use PackageInfo.PackageInfo.PackageInfo;
 use PackageInfo.PackageInfo;
 use SemVer.SemVer;
 use SemVer.SemVer.SemVer;
-use Dependency.PackageDependency;
+use Pkger/Dependency.PackageDependency;
 use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists,isDirectory,getName};
 use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
@@ -196,14 +196,7 @@ namespace Pkger {
         }
 
  
-    pub def examplePackage(): PackageInfo = 
-        PackageInfo({
-            name = "MyPackageName",
-            version = SemVer(1,2,3), 
-            authors = Author({name = "peter", email = None, website = None}) :: Nil,
-            edition = SemVer(0,14,6),
-            dependencies = Nil,
-            url = "Nil"})
+    
     
     ///
     /// Generate a manifest 
