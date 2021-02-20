@@ -19,7 +19,7 @@ use PackageInfo.PackageInfo;
 use SemVer.SemVer;
 use SemVer.SemVer.SemVer;
 use Pkger/Dependency.PackageDependency;
-use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists,isDirectory,getName};
+use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists,isDirectory,getName => noJavaFileGetname};
 use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
@@ -187,7 +187,36 @@ namespace Pkger {
     }
 
     //
-    //deleteFolder helper, can't use let*
+    // Give a directory and return all .flix files in the directory
+    //
+    
+    pub def getFlixFiles(f: File): Result[List[File],InvalidPackageError] & Impure = {
+        import java.io.File.list();
+        import java.io.File.listFiles();
+        import java.io.File.getName();
+        if (checkDirectory(f)){
+            let File(rootJavaFile) = f;
+            let fileArray = Array.length(rootJavaFile.list());
+            if (fileArray == 0) {
+                "it's an empty directory" |> println;
+                Ok(Nil)
+            } 
+            else {
+                let javaFileList = rootJavaFile.listFiles();
+                let files = Array.toList(javaFileList);
+                List.map(getName,files) |> println;
+                Ok(Nil)
+            }
+        }
+        else {
+            Err(InvalidPackageError.FileNotExist)
+        }
+        
+    }
+    
+
+    //
+    //return true if input file is a directory 
     //
     def checkDirectory(file: File): Bool & Impure = 
         match isDirectory(file) {
