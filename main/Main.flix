@@ -49,30 +49,30 @@ def options(): List[OptionDescr[Flag]] =
    
 
 
-def handleOptions(x: List[Flag]): Int32 & Impure = 
+def handleOptions(x: List[Flag]): Result[Bool,String] & Impure = 
     let flipVersion = "The current version is 0,1,0";
     match List.head(x) {
-        case Some(Version) => "Welcome to Flip" |> println; flipVersion |> println; 1
+        case Some(Version) => "Welcome to Flip" |> println; flipVersion |> println; Ok(true)
         case Some(Help) => 
         "Flip [init] [noArgs]"|> println;
         "Flip [new] [packagename]" |> println;
         "Flip [uninstall] [packagename]"|> println;
         "Flip [checkvalid] [noArgs]"|> println;
-        "Flip [findflix] [dirName]"|> println; 1
-        case _ => 1
+        "Flip [findflix] [dirName]"|> println; Ok(true)
+        case _ => Ok(false)
     }
 
-def handleNonOption(x: List[String]): Int32 & Impure = 
+def handleNonOption(x: List[String]): Result[Bool,String] & Impure = 
     match x {
-        case Nil => 0
+        case Nil => Ok(false)
         case n :: rest => 
             match n {
-                case "new" => let fileName = List.head(rest); mkPackage(fileName);1
-                case "uninstall" => let fileName = List.head(rest); uninstallPackage(fileName);1
-                case "init" => initPackage();1
-                case "checkvalid" => isValidProject();1
-                case "findflix" => let dirName = match List.head(rest) { case None => "nothing" case Some(x) => x } ; let dir = newFile(dirName); getFlixFiles(dir);1
-                case _ => 0
+                case "new" => let fileName = List.head(rest); mkPackage(fileName);Ok(true)
+                case "uninstall" => let fileName = List.head(rest); uninstallPackage(fileName);Ok(true)
+                case "init" => initPackage();Ok(true)
+                case "checkvalid" => isValidProject();Ok(true)
+                case "findflix" => let dirName = match List.head(rest) { case None => "nothing" case Some(x) => x } ; let dir = newFile(dirName); getFlixFiles(dir);Ok(true)
+                case _ => Ok(false)
             }
     }
 
