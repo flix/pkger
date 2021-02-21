@@ -31,6 +31,14 @@ use Pkger/Author.Author.Author;
 use Pkger/Author.Author;
 use Pkger/PkgerError.InvalidPackageError;
 
+
+instance ToString[IOError]{
+    def toString(x: IOError): String = match x {
+        //case IOError.ElementNotFound(String) => "ElementNotFound"
+        case IOError.MalformedZip => "MalformedZip" 
+
+    }}
+
 namespace Pkger {
     
     ///
@@ -193,7 +201,6 @@ namespace Pkger {
     pub def getFlixFiles(f: File): Result[List[File],InvalidPackageError] & Impure = {
         import java.io.File.list();
         import java.io.File.listFiles();
-        import java.io.File.getName();
         if (checkDirectory(f)){
             let File(rootJavaFile) = f;
             let fileArray = Array.length(rootJavaFile.list());
@@ -202,16 +209,36 @@ namespace Pkger {
                 Ok(Nil)
             } 
             else {
-                let javaFileList = rootJavaFile.listFiles();
-                let files = Array.toList(javaFileList);
-                List.map(getName,files) |> println;
-                Ok(Nil)
+                let javaFileArray = rootJavaFile.listFiles();
+                let javaFileList = Array.toList(javaFileArray);
+                let files = List.map(File,javaFileList);
+                let flixFiles = removeNonFlix(files,Nil);
+                List.map(noJavaFileGetname,flixFiles) |> println;
+                Ok(flixFiles)
             }
         }
         else {
             Err(InvalidPackageError.FileNotExist)
-        }
+        }   
+    }
+
+    
+    def removeNonFlix(filelist: List[File], flixList: List[File]): List[File] & Impure = { 
+        match filelist {
+            case Nil => flixList
+            case n :: rest =>   let fileName = match noJavaFileGetname(n){
+                                    case Ok(r) => r
+                                    case Err(_r) => ???
+                                };
+                                if(String.endsWith(fileName,".flix")){
+                                    let flixList = flixList ::: n::Nil; 
+                                    removeNonFlix(rest,flixList)
+                                }
+                                else {
+                                    removeNonFlix(rest,flixList)
+                                }                           
         
+        }
     }
     
 
