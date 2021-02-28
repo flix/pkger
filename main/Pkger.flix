@@ -19,7 +19,8 @@ use PackageInfo.PackageInfo;
 use SemVer.SemVer;
 use SemVer.SemVer.SemVer;
 use Pkger/Dependency.PackageDependency;
-use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists,isDirectory => isDirectoryNoJava,getName => noJavaFileGetname,newOutputStream,newInputStream};
+use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists,isDirectory => isDirectoryNoJava,
+                getName => noJavaFileGetname,newOutputStream,newInputStream};
 use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
@@ -50,11 +51,18 @@ namespace Pkger {
     ///
     pub def makejar(): Result[Bool,IOError] & Impure=
         import java.io.File.listFiles();
+        import java.io.File.createNewFile();
         use Result.flatMap;
         let zipTo = newFile("flixCompress.jar");
         let* fos = newOutputStream(zipTo);
         let zipOut = newZipOut(fos);
         let fileToZip = newFile("target/flix");
+        let metainf = newFile("target/flix/META-INF");
+        mkdirs(metainf);
+        let manifest = newFile("target/flix/META-INF/MANIFEST.MF");
+        let File(javaFile) = manifest;
+        javaFile.createNewFile();
+        writeLines(manifest,"Manifest-Version: 1.0"::"Main-Class: Main"::""::Nil);
         let File(javaFileToZip) = fileToZip;
         let flixChild = javaFileToZip.listFiles();
         let flixChildLength = Array.length(flixChild);
