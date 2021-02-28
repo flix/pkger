@@ -33,6 +33,7 @@ use Pkger/PkgerError.InvalidPackageError;
 use Core/Io/ZipOutput.{new => newZipOut,ZipOutput,write,close => closeZipOutput};
 use Core/Io/InputStream.{readAll,close => closeInput};
 use Core/Io/OutputStream.{close => closeOutput};
+use Core/Io/ZipOutput.ZipOutput.ZipOutput;
 
 
 instance ToString[IOError]{
@@ -50,7 +51,7 @@ namespace Pkger {
     pub def makejar(): Result[Bool,IOError] & Impure=
         import java.io.File.listFiles();
         use Result.flatMap;
-        let zipTo = newFile("flixCompress.zip");
+        let zipTo = newFile("flixCompress.jar");
         let* fos = newOutputStream(zipTo);
         let zipOut = newZipOut(fos);
         let fileToZip = newFile("target/flix");
@@ -58,26 +59,30 @@ namespace Pkger {
         let flixChild = javaFileToZip.listFiles();
         let flixChildLength = Array.length(flixChild);
         let flixChildWrap = Array.map(File,flixChild);
-        foreachHelper(zipFile,flixChildWrap,zipOut,flixChildLength,0);
-        closeOutput(fos);
+        foreachHelper(zipFile,flixChildWrap,None,zipOut,flixChildLength,0);
         closeZipOutput(zipOut);
+        closeOutput(fos);
+        
         Ok(true)
     
     //
     // For each loop
     //
-    def foreachHelper(f: (File,String,ZipOutput) ~> Result[Unit,IOError], a: Array[File], b: ZipOutput, len: Int32, i: Int32): Result[Unit,IOError] & Impure =
+    def foreachHelper(f: (File,String,ZipOutput) ~> Result[Unit,IOError], a: Array[File], parentName: Option[String], b: ZipOutput, len: Int32, i: Int32): Result[Unit,IOError] & Impure =
         use Result.flatMap;
         if (i >= len)
             Ok(())
         else {
             let* fileName = noJavaFileGetname(a[i]); 
-            f(a[i],fileName,b);
-            foreachHelper(f,a, b , len, i + 1);
+            let concateName = match parentName {
+                case None => fileName
+                case Some(y) => y + "/" + fileName
+            }; 
+            f(a[i],concateName,b);
+            foreachHelper(f,a, parentName,b , len, i + 1);
             Ok(())
             
         }
-        
     
     //
     //zip a file and if it's an directory, it'c childrens as well
@@ -86,12 +91,28 @@ namespace Pkger {
         use Result.flatMap;
         import java.io.File.isDirectory();
         import java.io.File.listFiles();
+        import new java.util.zip.ZipEntry(String) as newEntry;
+        import java.util.zip.ZipOutputStream.putNextEntry(##java.util.zip.ZipEntry);
+        import java.util.zip.ZipOutputStream.closeEntry();
         let File(javaFile) = f; 
         if (javaFile.isDirectory()) {
+            if (String.endsWith(fileName,"/")){
+                let ZipOutput(javaOutput) = zipOut;
+                let dir = newEntry(fileName);
+                javaOutput.putNextEntry(dir);
+                javaOutput.closeEntry()
+            } 
+            else {
+                let ZipOutput(javaOutput) = zipOut;
+                let dir = newEntry(fileName + "/");
+                javaOutput.putNextEntry(dir);
+                javaOutput.closeEntry()
+            };
             let children = javaFile.listFiles();
             let childrenWrap = Array.map(File,children);
             let childdrenLength = Array.length(childrenWrap);
-            foreachHelper(zipFile,childrenWrap,zipOut,childdrenLength,0)
+            foreachHelper(zipFile,childrenWrap,Some(fileName),zipOut,childdrenLength,0);
+            Ok(())
         } else {
             let* fis = newInputStream(f);
             let* bytes = readAll(fis);
@@ -100,6 +121,7 @@ namespace Pkger {
             Ok(())
 
         }
+        
         
 
     ///
