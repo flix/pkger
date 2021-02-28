@@ -45,6 +45,26 @@ instance ToString[IOError]{
     }}
 
 namespace Pkger {
+    
+    pub def packFlix(filename: Option[String]): Result[Bool,IOError] & Impure = 
+        use Result.flatMap;
+        match filename {
+            case None => "file need to pack is not exist" |> println;Ok(false)
+            case Some(y) => let fileToPack = newFile(y);
+                            let zipTo = newFile(y+".zip");
+                            let* fos = newOutputStream(zipTo);
+                            let zipOut = newZipOut(fos);
+                            let* flixList = getFlixFiles(fileToPack);
+                            let flixArray = List.toArray(flixList);
+                            let flixArrayLength = Array.length(flixArray);
+                            foreachHelper(zipFile,flixArray,None,zipOut,flixArrayLength,0);
+                            closeZipOutput(zipOut);
+                            closeOutput(fos);
+                            Ok(true)
+        }
+        
+        
+
 
     ///
     ///pack the current package into a jar file
@@ -70,7 +90,6 @@ namespace Pkger {
         foreachHelper(zipFile,flixChildWrap,None,zipOut,flixChildLength,0);
         closeZipOutput(zipOut);
         closeOutput(fos);
-        
         Ok(true)
     
     //
@@ -129,7 +148,6 @@ namespace Pkger {
             Ok(())
 
         }
-        
         
 
     ///
@@ -289,7 +307,7 @@ namespace Pkger {
     // Give a directory and return all .flix files in the directory
     //
     
-    pub def getFlixFiles(f: File): Result[List[File],InvalidPackageError] & Impure = {
+    pub def getFlixFiles(f: File): Result[List[File],IOError] & Impure = {
         import java.io.File.list();
         import java.io.File.listFiles();
         if (checkDirectory(f)){
@@ -309,7 +327,8 @@ namespace Pkger {
             }
         }
         else {
-            Err(InvalidPackageError.FileNotExist)
+            "CHECK getFlixFiles"|> println;
+            Ok(Nil)
         }   
     }
 
