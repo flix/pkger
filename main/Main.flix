@@ -22,7 +22,7 @@ use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
 use GetOpt.{getOpt, usageInfo};
 use Core/Io/IOError.IOError;
 use Core/Io/File.File.File;
-use Pkger.{isValidProject,initPackage,uninstallPackage,mkPackage,getFlixFiles};
+use Pkger.{isValidProject,initPackage,uninstallPackage,mkPackage,getFlixFiles,makejar};
 
 
 enum Flag {
@@ -72,6 +72,7 @@ def handleNonOption(x: List[String]): Result[Bool,String] & Impure =
                 case "init" => initPackage();Ok(true)
                 case "checkvalid" => isValidProject();Ok(true)
                 case "findflix" => let dirName = match List.head(rest) { case None => "nothing" case Some(x) => x } ; let dir = newFile(dirName); getFlixFiles(dir);Ok(true)
+                case "makejar" => makejar();Ok(true)
                 case _ => Ok(false)
             }
     }

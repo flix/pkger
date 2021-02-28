@@ -19,7 +19,7 @@ use PackageInfo.PackageInfo;
 use SemVer.SemVer;
 use SemVer.SemVer.SemVer;
 use Pkger/Dependency.PackageDependency;
-use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists,isDirectory,getName => noJavaFileGetname};
+use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists,isDirectory => isDirectoryNoJava,getName => noJavaFileGetname,newOutputStream,newInputStream};
 use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
@@ -30,6 +30,9 @@ use String.replace;
 use Pkger/Author.Author.Author;
 use Pkger/Author.Author;
 use Pkger/PkgerError.InvalidPackageError;
+use Core/Io/ZipOutput.{new => newZipOut,ZipOutput,write,close => closeZipOutput};
+use Core/Io/InputStream.{readAll,close => closeInput};
+use Core/Io/OutputStream.{close => closeOutput};
 
 
 instance ToString[IOError]{
@@ -40,7 +43,65 @@ instance ToString[IOError]{
     }}
 
 namespace Pkger {
+
+    ///
+    ///pack the current package into a jar file
+    ///
+    pub def makejar(): Result[Bool,IOError] & Impure=
+        import java.io.File.listFiles();
+        use Result.flatMap;
+        let zipTo = newFile("flixCompress.zip");
+        let* fos = newOutputStream(zipTo);
+        let zipOut = newZipOut(fos);
+        let fileToZip = newFile("target/flix");
+        let File(javaFileToZip) = fileToZip;
+        let flixChild = javaFileToZip.listFiles();
+        let flixChildLength = Array.length(flixChild);
+        let flixChildWrap = Array.map(File,flixChild);
+        foreachHelper(zipFile,flixChildWrap,zipOut,flixChildLength,0);
+        closeOutput(fos);
+        closeZipOutput(zipOut);
+        Ok(true)
     
+    //
+    // For each loop
+    //
+    def foreachHelper(f: (File,String,ZipOutput) ~> Result[Unit,IOError], a: Array[File], b: ZipOutput, len: Int32, i: Int32): Result[Unit,IOError] & Impure =
+        use Result.flatMap;
+        if (i >= len)
+            Ok(())
+        else {
+            let* fileName = noJavaFileGetname(a[i]); 
+            f(a[i],fileName,b);
+            foreachHelper(f,a, b , len, i + 1);
+            Ok(())
+            
+        }
+        
+    
+    //
+    //zip a file and if it's an directory, it'c childrens as well
+    //
+    pub def zipFile(f: File, fileName: String,zipOut: ZipOutput): Result[Unit,IOError] & Impure = 
+        use Result.flatMap;
+        import java.io.File.isDirectory();
+        import java.io.File.listFiles();
+        let File(javaFile) = f; 
+        if (javaFile.isDirectory()) {
+            let children = javaFile.listFiles();
+            let childrenWrap = Array.map(File,children);
+            let childdrenLength = Array.length(childrenWrap);
+            foreachHelper(zipFile,childrenWrap,zipOut,childdrenLength,0)
+        } else {
+            let* fis = newInputStream(f);
+            let* bytes = readAll(fis);
+            write(fileName,bytes,zipOut);
+            closeInput(fis);
+            Ok(())
+
+        }
+        
+
     ///
     /// Create a directory name x, then create the skeleton files for a empty package
     ///
@@ -246,7 +307,7 @@ namespace Pkger {
     //return true if input file is a directory 
     //
     def checkDirectory(file: File): Bool & Impure = 
-        match isDirectory(file) {
+        match isDirectoryNoJava(file) {
             case Ok(t) => t 
             case Err(_e) => "error in File exists()"|> println; false
         }
