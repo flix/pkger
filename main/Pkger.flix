@@ -48,21 +48,70 @@ namespace Pkger {
     
     pub def packFlix(filename: Option[String]): Result[Bool,IOError] & Impure = 
         use Result.flatMap;
+        import java.io.File.listFiles();
         match filename {
             case None => "file need to pack is not exist" |> println;Ok(false)
             case Some(y) => let fileToPack = newFile(y);
-                            let zipTo = newFile(y+".zip");
+                            let zipTo = newFile(y+"pack.zip");
                             let* fos = newOutputStream(zipTo);
                             let zipOut = newZipOut(fos);
-                            let* flixList = getFlixFiles(fileToPack);
-                            let flixArray = List.toArray(flixList);
-                            let flixArrayLength = Array.length(flixArray);
-                            foreachHelper(zipFile,flixArray,None,zipOut,flixArrayLength,0);
+                            let File(javaFile) = fileToPack;
+                            let child = javaFile.listFiles();
+                            let childLength = Array.length(child);
+                            let childWrap = Array.map(File,child);
+                            foreachHelper(zipFlixFile,childWrap,None,zipOut,childLength,0);
                             closeZipOutput(zipOut);
                             closeOutput(fos);
                             Ok(true)
         }
-        
+
+    
+    //
+    //zip a file and if it's an directory, it'c childrens as well
+    //
+    pub def zipFlixFile(f: File, fileName: String,zipOut: ZipOutput): Result[Unit,IOError] & Impure = 
+        use Result.flatMap;
+        import java.io.File.isDirectory();
+        import java.io.File.listFiles();
+        import new java.util.zip.ZipEntry(String) as newEntry;
+        import java.util.zip.ZipOutputStream.putNextEntry(##java.util.zip.ZipEntry);
+        import java.util.zip.ZipOutputStream.closeEntry();
+        let File(javaFile) = f; 
+        if (javaFile.isDirectory()) {
+            if (String.endsWith(fileName,"/")){
+                let ZipOutput(javaOutput) = zipOut;
+                let dir = newEntry(fileName);
+                javaOutput.putNextEntry(dir);
+                javaOutput.closeEntry()
+            } 
+            else {
+                let ZipOutput(javaOutput) = zipOut;
+                let dir = newEntry(fileName + "/");
+                javaOutput.putNextEntry(dir);
+                javaOutput.closeEntry()
+            };
+            let children = javaFile.listFiles();
+            let childrenWrap = Array.map(File,children);
+            let childdrenLength = Array.length(childrenWrap);
+            foreachHelper(zipFile,childrenWrap,Some(fileName),zipOut,childdrenLength,0);
+            Ok(())
+        } else {
+            if (String.endsWith(fileName,".flix")) {
+                let* fis = newInputStream(f);
+                let* bytes = readAll(fis);
+                write(fileName,bytes,zipOut);
+                closeInput(fis);
+                Ok(())
+            }
+            else {
+                Ok(())
+            }
+            
+
+        }
+    
+  
+
         
 
 
@@ -303,53 +352,7 @@ namespace Pkger {
         else { Ok(false) }
     }
 
-    //
-    // Give a directory and return all .flix files in the directory
-    //
-    
-    pub def getFlixFiles(f: File): Result[List[File],IOError] & Impure = {
-        import java.io.File.list();
-        import java.io.File.listFiles();
-        if (checkDirectory(f)){
-            let File(rootJavaFile) = f;
-            let fileArray = Array.length(rootJavaFile.list());
-            if (fileArray == 0) {
-                "it's an empty directory" |> println;
-                Ok(Nil)
-            } 
-            else {
-                let javaFileArray = rootJavaFile.listFiles();
-                let javaFileList = Array.toList(javaFileArray);
-                let files = List.map(File,javaFileList);
-                let flixFiles = removeNonFlix(files,Nil);
-                List.map(noJavaFileGetname,flixFiles) |> println;
-                Ok(flixFiles)
-            }
-        }
-        else {
-            "CHECK getFlixFiles"|> println;
-            Ok(Nil)
-        }   
-    }
-
-    
-    def removeNonFlix(filelist: List[File], flixList: List[File]): List[File] & Impure = { 
-        match filelist {
-            case Nil => flixList
-            case n :: rest =>   let fileName = match noJavaFileGetname(n){
-                                    case Ok(r) => r
-                                    case Err(_r) => ???
-                                };
-                                if(String.endsWith(fileName,".flix")){
-                                    let flixList = flixList ::: n::Nil; 
-                                    removeNonFlix(rest,flixList)
-                                }
-                                else {
-                                    removeNonFlix(rest,flixList)
-                                }                           
-        
-        }
-    }
+   
     
 
     //
