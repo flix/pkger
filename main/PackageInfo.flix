@@ -15,20 +15,22 @@
  * limitations under the License.
  */
 
-use SemVer.SemVer;
+use Pkger/SemVer.SemVer;
 use Pkger/Author.Author;
 use Pkger/Dependency.PackageDependency;
 
-namespace PackageInfo{
+namespace Pkger{
+    namespace PackageInfo{
  // Any field that's only require by the registry is ignore for now
-    pub enum PackageInfo{
-        case PackageInfo({
-            name : String,
-            version : SemVer,
-            authors : List[Author],
-            edition : SemVer,
-            dependencies : List[PackageDependency],
-            url : String
-        })
+        pub enum PackageInfo{
+            case PackageInfo({
+                name : String,
+                version : SemVer,
+                authors : List[Author],
+                edition : SemVer,
+                dependencies : List[PackageDependency],
+                url : String
+            })
+        }
     }
- }
+}

@@ -16,8 +16,8 @@
  */
 
 use Core/Io/File.{new => newFile};
-use SemVer.SemVer.SemVer;
-use SemVer.lessEqual;
+use Pkger/SemVer.SemVer.SemVer;
+use Pkger/SemVer.lessEqual;
 namespace Pkger {
 
     /////////////////////////////////////////////////////////////////////////////

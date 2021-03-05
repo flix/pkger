@@ -14,7 +14,7 @@
  * limitations under the License.
 */
 
-use SemVer.SemVer;
+use Pkger/SemVer.SemVer;
 namespace Pkger{
     namespace Dependency {
         pub enum PackageDependency {

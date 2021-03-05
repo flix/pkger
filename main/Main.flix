@@ -54,11 +54,12 @@ def handleOptions(x: List[Flag]): Result[Bool,String] & Impure =
     match List.head(x) {
         case Some(Version) => "Welcome to Flip" |> println; flipVersion |> println; Ok(true)
         case Some(Help) => 
-        "Flip [init] [noArgs]"|> println;
-        "Flip [new] [packagename]" |> println;
-        "Flip [uninstall] [packagename]"|> println;
-        "Flip [checkvalid] [noArgs]"|> println;
-        "Flip [findflix] [dirName]"|> println; Ok(true)
+        "Flip [init] [noArgs] -- make package template under current file directory"|> println;
+        "Flip [new] [packagename] -- make package template files in a new directory with given name" |> println;
+        "Flip [uninstall] [packagename] -- delete the package"|> println;
+        "Flip [checkvalid] [noArgs] -- check if the package have a valid directory structure" |> println;
+        "Flip [makejar] [noArgs] -- pack all .class files into a jar"|> println;
+        "Flip [pack] [packagename] -- pack all .flix files into a zip"|> println; Ok(true)
         case _ => Ok(false)
     }
 
@@ -90,6 +91,10 @@ def main(args: Array[String]): Int32 & Impure =
             handleNonOption(opts.nonOptions); 0}
         case Failure(errs) => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
     }
+
+namespace Pkger {
+    pub def realMain(args: Array[String]): Int32 & Impure = main(args)
+}
 
 
 

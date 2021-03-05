@@ -14,10 +14,11 @@
  * limitations under the License.
 */
  
-use PackageInfo.PackageInfo;
-
-namespace Repository{
-    pub enum Repository{
-        case Repository(Map[String,List[PackageInfo]])
-    }
+use Pkger/PackageInfo.PackageInfo;
+namespace Pkger{
+    namespace Repository{
+        pub enum Repository{
+            case Repository(Map[String,List[PackageInfo]])
+        }
+    }  
 }

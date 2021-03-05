@@ -14,9 +14,9 @@
  * limitations under the License.
 */
 
-use PackageInfo.PackageInfo;
-use PackageInfo.PackageInfo.PackageInfo;
-use SemVer.SemVer.SemVer;
+use Pkger/PackageInfo.PackageInfo;
+use Pkger/PackageInfo.PackageInfo.PackageInfo;
+use Pkger/SemVer.SemVer.SemVer;
 use Pkger/Author.Author.Author;
 use Pkger/Dependency.PackageDependency.PackageDependency;
 

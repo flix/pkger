@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
- namespace Pkger/PkgerError{
+
+namespace Pkger/PkgerError{
 
     pub enum InvalidPackageError {
         case MissingSrcDirectory

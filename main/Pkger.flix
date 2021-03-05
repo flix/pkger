@@ -14,8 +14,8 @@
  * limitations under the License.
 */
 
-use PackageInfo.PackageInfo.PackageInfo;
-use PackageInfo.PackageInfo;
+use Pkger/PackageInfo.PackageInfo.PackageInfo;
+use Pkger/PackageInfo.PackageInfo;
 use SemVer.SemVer;
 use SemVer.SemVer.SemVer;
 use Pkger/Dependency.PackageDependency;
@@ -67,7 +67,7 @@ namespace Pkger {
 
     
     //
-    //zip a file and if it's an directory, it'c childrens as well
+    //zip .flix file, if it's an directory zip all .flix in it and it's subdirectory 
     //
     pub def zipFlixFile(f: File, fileName: String,zipOut: ZipOutput): Result[Unit,IOError] & Impure = 
         use Result.flatMap;
@@ -110,10 +110,6 @@ namespace Pkger {
 
         }
     
-  
-
-        
-
 
     ///
     ///pack the current package into a jar file
@@ -353,8 +349,6 @@ namespace Pkger {
     }
 
    
-    
-
     //
     //return true if input file is a directory 
     //
