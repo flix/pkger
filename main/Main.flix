@@ -22,7 +22,7 @@ use GetOpt.ArgOrder.{RequireOrder, Permute, ReturnInOrder};
 use GetOpt.{getOpt, usageInfo};
 use Core/Io/IOError.IOError;
 use Core/Io/File.File.File;
-use Pkger.{isValidProject,initPackage,uninstallPackage,mkPackage,makejar,packFlix};
+use Pkger.{isValidProject,initPackage,uninstallPackage,mkPackage,makejar,packFlix,giveMeSources};
 
 
 enum Flag {
@@ -59,7 +59,8 @@ def handleOptions(x: List[Flag]): Result[Bool,String] & Impure =
         "Flip [uninstall] [packagename] -- delete the package"|> println;
         "Flip [checkvalid] [noArgs] -- check if the package have a valid directory structure" |> println;
         "Flip [makejar] [noArgs] -- pack all .class files into a jar"|> println;
-        "Flip [pack] [packagename] -- pack all .flix files into a zip"|> println; Ok(true)
+        "Flip [pack] [packagename] -- pack all .flix files into a zip"|> println;
+        "Flip [sources] [dirname] -- return absolute path of all .flix files as an Array"|> println; Ok(true)
         case _ => Ok(false)
     }
 
@@ -74,6 +75,7 @@ def handleNonOption(x: List[String]): Result[Bool,String] & Impure =
                 case "init" => initPackage();Ok(true)
                 case "checkvalid" => "Hi" |> println;isValidProject();Ok(true)
                 case "makejar" => makejar();Ok(true)
+                case "sources" => let dirName = List.head(rest);giveMeSources(dirName);Ok(true)
                 case _ => Ok(false)
             }
     }
