@@ -20,47 +20,56 @@ use Pkger/SemVer.SemVer.SemVer;
 use Pkger/Author.Author.Author;
 use Pkger/Dependency.PackageDependency.PackageDependency;
 
-pub def examplePackage1(): PackageInfo = 
-        PackageInfo({
-            name = "MyPackageNameOne",
-            version = SemVer(1,0,0), 
-            authors = Author({name = "Peter", email = None, website = None}) :: Nil,
-            edition = SemVer(0,14,6),
-            dependencies = PackageDependency("MyPackageNameTwo",SemVer(2,0,0)) :: Nil,
-            url = "Nil"})
+namespace Pkger{
+    namespace Examples {
+        pub def examplePackage1(): PackageInfo = 
+            PackageInfo({
+                name = "MyPackageNameOne",
+                version = SemVer(1,0,0), 
+                authors = Author({name = "Peter", email = None, website = None}) :: Nil,
+                edition = SemVer(0,14,6),
+                dependencies = PackageDependency({name = "MyPackageNameTwo",version = SemVer(2,0,0)}) :: Nil,
+                url = "Nil"})
 
-pub def examplePackage2(): PackageInfo = 
-        PackageInfo({
-            name = "MyPackageNameTwo",
-            version = SemVer(2,0,0), 
-            authors = Author({name = "Jens", email = None, website = None}) :: Nil,
-            edition = SemVer(0,14,6),
-            dependencies = Nil,
-            url = "Nil"})
+        pub def examplePackage2(): PackageInfo = 
+                PackageInfo({
+                    name = "MyPackageNameTwo",
+                    version = SemVer(2,0,0), 
+                    authors = Author({name = "Jens", email = None, website = None}) :: Nil,
+                    edition = SemVer(0,14,6),
+                    dependencies = Nil,
+                    url = "Nil"})
 
-pub def examplePackage3(): PackageInfo = 
-        PackageInfo({
-            name = "MyPackageNameThree",
-            version = SemVer(3,0,0), 
-            authors = Author({name = "Mathias", email = None, website = None}) :: Nil,
-            edition = SemVer(0,14,6),
-            dependencies = Nil,
-            url = "Nil"})
+        pub def examplePackage3(): PackageInfo = 
+                PackageInfo({
+                    name = "MyPackageNameThree",
+                    version = SemVer(3,0,0), 
+                    authors = Author({name = "Mathias", email = None, website = None}) :: Nil,
+                    edition = SemVer(0,14,6),
+                    dependencies = Nil,
+                    url = "Nil"})
 
-pub def examplePackage4(): PackageInfo = 
-        PackageInfo({
-            name = "MyPackageNameFour",
-            version = SemVer(4,0,0), 
-            authors = Author({name = "Paul", email = None, website = None}) :: Nil,
-            edition = SemVer(0,14,6),
-            dependencies = Nil,
-            url = "Nil"})
+        pub def examplePackage4(): PackageInfo = 
+                PackageInfo({
+                    name = "MyPackageNameFour",
+                    version = SemVer(4,0,0), 
+                    authors = Author({name = "Paul", email = None, website = None}) :: Nil,
+                    edition = SemVer(0,14,6),
+                    dependencies = Nil,
+                    url = "Nil"})
 
-pub def examplePackage5(): PackageInfo = 
-        PackageInfo({
-            name = "MyPackageNameFive",
-            version = SemVer(5,0,0), 
-            authors = Author({name = "Simon", email = None, website = None}) :: Nil,
-            edition = SemVer(0,14,6),
-            dependencies = Nil,
-            url = "Nil"})
+        pub def examplePackage5(): PackageInfo = 
+                PackageInfo({
+                    name = "MyPackageNameFive",
+                    version = SemVer(5,0,0), 
+                    authors = Author({name = "Simon", email = None, website = None}) :: Nil,
+                    edition = SemVer(0,14,6),
+                    dependencies = Nil,
+                    url = "Nil"})
+
+
+    }
+}
+
+
+

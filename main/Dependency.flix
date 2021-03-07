@@ -18,8 +18,8 @@ use Pkger/SemVer.SemVer;
 namespace Pkger{
     namespace Dependency {
         pub enum PackageDependency {
-            case PackageDependency(String, SemVer)  
-            case FileDependency(String, String)  
+            case PackageDependency({name: String, version : SemVer})  
+            //case FileDependency(String, String)  
         }
     }
 }

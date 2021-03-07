@@ -16,8 +16,8 @@
 
 use Pkger/PackageInfo.PackageInfo.PackageInfo;
 use Pkger/PackageInfo.PackageInfo;
-use SemVer.SemVer;
-use SemVer.SemVer.SemVer;
+use Pkger/SemVer.SemVer;
+use Pkger/SemVer.SemVer.SemVer;
 use Pkger/Dependency.PackageDependency;
 use Core/Io/File.{File, new => newFile, readLines, writeLines,mkdirs,exists,isDirectory => isDirectoryNoJava,
                 getName => noJavaFileGetname,newOutputStream,newInputStream};
