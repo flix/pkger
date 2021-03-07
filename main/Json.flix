@@ -50,13 +50,15 @@ namespace Pkger{
             let dependencies = stringifyDependency(package1.dependencies);
             let url = package1.url;
             
-            let packageInfoString = "{"+Char.toString('"')+"name"+Char.toString('"') + ":" + Char.toString('"')+name+Char.toString('"') + "," +
-                                    Char.toString('"')+"version"+Char.toString('"') + ":" + Char.toString('"')+version+Char.toString('"') + "," +
-                                    Char.toString('"')+"authors"+Char.toString('"') + ":" + "["+authors+"]" + "," +
-                                    Char.toString('"')+"edition"+Char.toString('"') + ":" + Char.toString('"')+edition+Char.toString('"') + "," +
-                                    Char.toString('"')+"dependencies"+Char.toString('"') + ":" + "["+dependencies+"]" + "," +
-                                    Char.toString('"')+"url"+Char.toString('"') + ":" + Char.toString('"')+url+Char.toString('"')+"}";
-            packageInfoString |> println;
+            let packageInfoString = Char.toString('"')+"name"+Char.toString('"') + ":" + Char.toString('"')+name+Char.toString('"') + "," + String.lineSeparator()+
+                                    Char.toString('"')+"version"+Char.toString('"') + ":" + Char.toString('"')+version+Char.toString('"') + "," +String.lineSeparator()+
+                                    Char.toString('"')+"authors"+Char.toString('"') + ":" + "["+authors+"]" + "," +String.lineSeparator()+
+                                    Char.toString('"')+"edition"+Char.toString('"') + ":" + Char.toString('"')+edition+Char.toString('"') + "," +String.lineSeparator()+
+                                    Char.toString('"')+"dependencies"+Char.toString('"') + ":" + "["+dependencies+"]" + "," +String.lineSeparator()+
+                                    Char.toString('"')+"url"+Char.toString('"') + ":" + Char.toString('"')+url+Char.toString('"');
+            let indentString = String.indent(3,packageInfoString);
+            let finalPretty = "{" + String.lineSeparator() + indentString + String.lineSeparator()+ "}" ;
+            finalPretty |> println;
             ()
 
         //
@@ -83,10 +85,12 @@ namespace Pkger{
                 case None => "None"
                 case Some(y) => y
             };
-            "{"+Char.toString('"')+"name"+Char.toString('"') + ":" + Char.toString('"')+authorRecord.name+Char.toString('"')+"," + 
-                Char.toString('"')+"email"+Char.toString('"') + ":" + Char.toString('"')+email+Char.toString('"')+"," +
-                Char.toString('"')+"website"+Char.toString('"') + ":" + Char.toString('"')+website+Char.toString('"')+
-            "}"
+            let author = 
+                String.lineSeparator()+Char.toString('"')+"name"+Char.toString('"') + ":" + Char.toString('"')+authorRecord.name+Char.toString('"')+"," + 
+                String.lineSeparator()+Char.toString('"')+"email"+Char.toString('"') + ":" + Char.toString('"')+email+Char.toString('"')+"," +
+                String.lineSeparator()+Char.toString('"')+"website"+Char.toString('"') + ":" + Char.toString('"')+website+Char.toString('"');
+            let authorIndent = "{"+String.indent(3,author)+"}";
+            authorIndent
         
         //
         // Turn dependencies into a string 
@@ -99,9 +103,11 @@ namespace Pkger{
             let PackageDependency(packageRecord) = a;
             let name = packageRecord.name;
             let version = stringifySemver(packageRecord.version);
-            "{"+Char.toString('"')+"packagename"+Char.toString('"') + ":" + Char.toString('"')+name+Char.toString('"')+"," + 
-                Char.toString('"')+"packagversion"+Char.toString('"') + ":" + Char.toString('"')+version+Char.toString('"')+  
-            "}"
+            let dependency = 
+                String.lineSeparator()+Char.toString('"')+"packagename"+Char.toString('"') + ":" + Char.toString('"')+name+Char.toString('"')+"," + 
+                String.lineSeparator()+Char.toString('"')+"packagversion"+Char.toString('"') + ":" + Char.toString('"')+version+Char.toString('"');
+            let dependencyIndent = "{"+String.indent(3,dependency)+"}";
+            dependencyIndent
 
     }    
 }
