@@ -23,7 +23,7 @@ use GetOpt.{getOpt, usageInfo};
 use Core/Io/IOError.IOError;
 use Core/Io/File.File.File;
 use Pkger.{isValidProject,initPackage,uninstallPackage,mkPackage,makejar,packFlix,giveMeSources};
-use Pkger/Json.{testJson};
+
 
 enum Flag {
     case Version
@@ -85,7 +85,6 @@ def main(args: Array[String]): Int32 & Impure =
     let args2 = GetOpt.preprocess({quoteOpen = "'", quoteClose = "'", stripQuoteMarks = false}, args);  
     let header = "Usage: <program> [OPTION...] files...";
     let options1 = options();
-    testJson();
     match getOpt(Permute,options1,args2){
         case Success(opts) => {
             //Console.printLine("Optionals: ${opts.options}");

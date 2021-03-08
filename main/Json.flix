@@ -25,42 +25,48 @@ use Pkger/Dependency.PackageDependency;
 
 
 namespace Pkger{
-    namespace Json{
+    namespace JSON{
+        /// pub enum JSON_WHITESPACE{
+        ///     case " "
+        /// }
+
+
+        //
+        // Parse JSON format string into a PackageInfo
+        //
+        pub def parse(_json: String): PackageInfo = 
+            PackageInfo({
+            name = "MyPackageNameTwo",
+            version = SemVer(2,0,0), 
+            authors = Author({name = "Jens", email = None, website = None}) :: Nil,
+            edition = SemVer(0,14,6),
+            dependencies = Nil,
+            url = "Nil"})
+        
+        pub def lex(s: String, tokens: List[String]): List[String] & Impure= 
+            let stringList = String.toList(s);
+            match stringList {
+                case Nil => tokens 
+                case n :: rest =>
+                    match Char.toString(n) {
+                        case " " => let restStringList = List.map(Char.toString,rest);
+                                    let newstring = String.flatten(restStringList);
+                                    lex(newstring,tokens)
+                        case "{" => let restStringList = List.map(Char.toString,rest);
+                                    let newstring = String.flatten(restStringList);
+                                    let tokens = tokens ::: ("{"::Nil);
+                                    lex(newstring,tokens)
+                        case _ => tokens
+                    }
+            }
+                
+            
+
+
         pub def stringifyPackageInfo(_p: PackageInfo): String = 
             //let PackageInfo(name, version, authors, edition, dependencies, url) = p;
             "name"
-            
-
-
-        pub def testJson(): Unit & Impure = 
-            let package1 = {
-                    name = "MyPackageNameOne",
-                    version = SemVer(1,0,0), 
-                    authors = Author({name = "Peter", email = None, website = None}) :: Author({name = "Lily", email = None, website = None}) :: Nil,
-                    edition = SemVer(0,14,6),
-                    dependencies = PackageDependency({name = "MyPackageNameTwo",version =SemVer(2,0,0)}) :: Nil,
-                    url = "www.google.com"};
-            /// let a = examplePackage2();
-            /// let PackageInfo(package1) = a;
-
-            let name = package1.name;
-            let version = stringifySemver(package1.version);
-            let authors = stringifyAuthors(package1.authors);
-            let edition = stringifySemver(package1.edition);
-            let dependencies = stringifyDependency(package1.dependencies);
-            let url = package1.url;
-            
-            let packageInfoString = Char.toString('"')+"name"+Char.toString('"') + ":" + Char.toString('"')+name+Char.toString('"') + "," + String.lineSeparator()+
-                                    Char.toString('"')+"version"+Char.toString('"') + ":" + Char.toString('"')+version+Char.toString('"') + "," +String.lineSeparator()+
-                                    Char.toString('"')+"authors"+Char.toString('"') + ":" + "["+authors+"]" + "," +String.lineSeparator()+
-                                    Char.toString('"')+"edition"+Char.toString('"') + ":" + Char.toString('"')+edition+Char.toString('"') + "," +String.lineSeparator()+
-                                    Char.toString('"')+"dependencies"+Char.toString('"') + ":" + "["+dependencies+"]" + "," +String.lineSeparator()+
-                                    Char.toString('"')+"url"+Char.toString('"') + ":" + Char.toString('"')+url+Char.toString('"');
-            let indentString = String.indent(3,packageInfoString);
-            let finalPretty = "{" + String.lineSeparator() + indentString + String.lineSeparator()+ "}" ;
-            finalPretty |> println;
-            ()
-
+        
         //
         // Turn semver into a string 
         //    
