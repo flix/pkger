@@ -15,47 +15,43 @@
  */
 use Pkger/PackageInfo.PackageInfo;
 use Pkger/PackageInfo.PackageInfo.PackageInfo;
+use Pkger/Examples.examplePackage1;
 use Pkger/Examples.examplePackage2;
+use Pkger/Examples.examplePackage3;
+use Pkger/Examples.examplePackage4;
+use Pkger/Examples.examplePackage5;
 use Pkger/SemVer.SemVer.SemVer;
 use Pkger/SemVer.SemVer;
 use Pkger/Author.Author;
 use Pkger/Author.Author.Author;
 use Pkger/Dependency.PackageDependency.PackageDependency;
 use Pkger/Dependency.PackageDependency;
-use Pkger/JSON.{stringifySemver,stringifyAuthors,stringifyDependency};
+use Pkger/JSON.{stringifySemver,stringifyAuthors,stringifyDependency,stringifyPackageInfo,lex};
 
-    pub def testStringify(): String & Impure = 
-        let package1 = {
-                name = "MyPackageNameOne",
-                version = SemVer(1,0,0), 
-                authors = Author({name = "Peter", email = None, website = None}) :: Author({name = "Lily", email = None, website = None}) :: Nil,
-                edition = SemVer(0,14,6),
-                dependencies = PackageDependency({name = "MyPackageNameTwo",version =SemVer(2,0,0)}) :: Nil,
-                url = "www.google.com"};
-        /// let a = examplePackage2();
-        /// let PackageInfo(package1) = a;
 
-        let name = package1.name;
-        let version = stringifySemver(package1.version);
-        let authors = stringifyAuthors(package1.authors);
-        let edition = stringifySemver(package1.edition);
-        let dependencies = stringifyDependency(package1.dependencies);
-        let url = package1.url;
-        
-        let packageInfoString = Char.toString('"')+"name"+Char.toString('"') + ":" + Char.toString('"')+name+Char.toString('"') + "," + String.lineSeparator()+
-                                Char.toString('"')+"version"+Char.toString('"') + ":" + Char.toString('"')+version+Char.toString('"') + "," +String.lineSeparator()+
-                                Char.toString('"')+"authors"+Char.toString('"') + ":" + "["+authors+"]" + "," +String.lineSeparator()+
-                                Char.toString('"')+"edition"+Char.toString('"') + ":" + Char.toString('"')+edition+Char.toString('"') + "," +String.lineSeparator()+
-                                Char.toString('"')+"dependencies"+Char.toString('"') + ":" + "["+dependencies+"]" + "," +String.lineSeparator()+
-                                Char.toString('"')+"url"+Char.toString('"') + ":" + Char.toString('"')+url+Char.toString('"');
-        let indentString = String.indent(3,packageInfoString);
-        let finalPretty = "{" + String.lineSeparator() + indentString + String.lineSeparator()+ "}" ;
-        finalPretty |> println;
-        finalPretty
-    
+
+    /////////////////////////////////////////////////////////////////////////////
+    // prettyprint                                                             //
+    /////////////////////////////////////////////////////////////////////////////
     @test
     def testJSON01(): Bool & Impure = 
-        testStringify();     
+        let a = examplePackage1();
+        stringifyPackageInfo(a) |> println;
+        let b = examplePackage2();
+        stringifyPackageInfo(b) |> println;
         true
+    
+    /////////////////////////////////////////////////////////////////////////////
+    // lex                                                                     //
+    /////////////////////////////////////////////////////////////////////////////
+    /// @test 
+    /// def testJSON02(): Bool & Impure = 
+    ///     let testCurly = "{}";
+    ///     let tokens = lex(testCurly);
+    ///     let expectedtokens = "{"::"}"::Nil;
+    ///     tokens == expectedtokens
+        
+        
 
+   
     

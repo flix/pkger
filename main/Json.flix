@@ -60,12 +60,24 @@ namespace Pkger{
                     }
             }
                 
+        pub def stringifyPackageInfo(p: PackageInfo): String = 
+            let PackageInfo(package1) = p;
+            let name = package1.name;
+            let version = stringifySemver(package1.version);
+            let authors = stringifyAuthors(package1.authors);
+            let edition = stringifySemver(package1.edition);
+            let dependencies = stringifyDependency(package1.dependencies);
+            let url = package1.url;
             
-
-
-        pub def stringifyPackageInfo(_p: PackageInfo): String = 
-            //let PackageInfo(name, version, authors, edition, dependencies, url) = p;
-            "name"
+            let packageInfoString = Char.toString('"')+"name"+Char.toString('"') + ":" + Char.toString('"')+name+Char.toString('"') + "," + String.lineSeparator()+
+                                    Char.toString('"')+"version"+Char.toString('"') + ":" + Char.toString('"')+version+Char.toString('"') + "," +String.lineSeparator()+
+                                    Char.toString('"')+"authors"+Char.toString('"') + ":" + "["+authors+"]" + "," +String.lineSeparator()+
+                                    Char.toString('"')+"edition"+Char.toString('"') + ":" + Char.toString('"')+edition+Char.toString('"') + "," +String.lineSeparator()+
+                                    Char.toString('"')+"dependencies"+Char.toString('"') + ":" + "["+dependencies+"]" + "," +String.lineSeparator()+
+                                    Char.toString('"')+"url"+Char.toString('"') + ":" + Char.toString('"')+url+Char.toString('"');
+            let indentString = String.indent(3,packageInfoString);
+            let finalPretty = "{" + String.lineSeparator() + indentString + String.lineSeparator()+ "}" ;
+            finalPretty
         
         //
         // Turn semver into a string 
